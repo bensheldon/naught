@@ -28,6 +28,14 @@ describe 'null object mimicking a class' do
     def notify_of_overdue_books(titles)
       puts 'Notifying...'
     end
+
+    def attributes
+      { height: '1.8m', glasses?: false }
+    end
+
+    def method_missing(method, *args, &block)
+      attributes.fetch(method) { super }
+    end
   end
 
   subject(:null) { mimic_class.new }
@@ -64,6 +72,11 @@ describe 'null object mimicking a class' do
   it 'includes inherited methods' do
     expect(null.authorized_for?('something')).to be_nil
     expect(null.login).to be_nil
+  end
+
+  it 'responds to methods caught by method_missing' do
+    expect(null.height).to be_nil
+    expect(null.glasses?).to be_nil
   end
 
   describe 'with include_super: false' do
@@ -113,5 +126,4 @@ describe 'using mimic with black_hole' do
 
     it_behaves_like_a_black_hole_mimic
   end
-
 end
